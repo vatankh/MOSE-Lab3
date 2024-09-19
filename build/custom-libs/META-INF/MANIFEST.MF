@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Implementation-Version: 1.0
+MD5: Point.java: 13494a4498a3a73e10e467afb191d114, PollView.java: 9a87e8
+ b7e7d70f66e5c7fd2515c0ec46, ConnectToDB.java: 925f2f540d289b8a5314dfc9f
+ 88dc42b, PointDateBean.java: e48e2f04a3fcfdbd2b220d6ef9b1c514
+SHA-1: Point.java: e340d8325f7ee5c372b85c4a16f9f86ea70b5d90, PollView.ja
+ va: f33b8261add2aabae90313ef9aed646010659a8a, ConnectToDB.java: ca4c49b
+ 3e0cbab6a4be13ff900adff74d6482176, PointDateBean.java: df98b11cf60ca3ad
+ 32e66cfa64c3be4207dd36e1
+

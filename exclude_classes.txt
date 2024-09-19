@@ -1,0 +1,10 @@
+# Exclude JavaScript files
+src/main/webapp/resources/Js_J/draw.js
+
+# Exclude configuration XML files
+src/main/webapp/WEB-INF/faces-config.xml
+src/main/webapp/WEB-INF/jboss-web.xml
+src/main/webapp/WEB-INF/web.xml
+
+# Exclude test files
+test/PointDateBeanTest.java

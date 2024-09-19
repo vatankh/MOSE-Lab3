@@ -1,0 +1,255 @@
+import javax.xml.transform.stream.StreamSource
+import javax.xml.validation.SchemaFactory
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'org.hidetake:gradle-ssh-plugin:2.10.1'
+    }
+}
+
+plugins {
+    id 'java'
+}
+
+import java.security.MessageDigest
+import java.nio.file.Files
+import java.nio.file.Paths
+
+group = 'net.EgorJunior'
+version = '1.0'
+
+// Source and target compatibility
+sourceCompatibility = '1.8'
+targetCompatibility = '1.8'
+
+// Repositories for dependency resolution
+repositories {
+    mavenCentral()
+    maven {
+        url 'https://repository.primefaces.org'
+    }
+}
+sourceSets {
+    main {
+        java {
+            srcDir 'src/main/java'
+        }
+    }
+    test {
+        java {
+            // Update this to point to your custom test directory
+            srcDir 'test'
+        }
+    }
+}
+// Project dependencies
+dependencies {
+    implementation 'com.jcraft:jsch:0.1.55'
+    compileOnly 'org.projectlombok:lombok:1.18.24'
+    implementation 'com.sun.faces:jsf-api:2.2.20'
+    implementation 'com.sun.faces:jsf-impl:2.2.18'
+    implementation 'org.primefaces:primefaces:8.0'
+    compileOnly 'javax:javaee-web-api:8.0.1'
+    implementation 'javax.validation:validation-api:1.1.0.Final'
+    implementation 'org.eclipse.persistence:eclipselink:3.0.0-M1'
+    implementation 'org.postgresql:postgresql:42.7.2'
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.7.0'
+    implementation 'javax.xml.bind:jaxb-api:2.3.1'
+    implementation 'commons-codec:commons-codec:1.15'
+
+}
+
+// Custom clean task to delete compiled classes and temporary files
+task customClean(type: Delete) {
+    delete file("${buildDir}/custom-classes")
+    delete file("${buildDir}/custom-libs")
+}
+
+// Custom compile task
+task customCompile(type: JavaCompile) {
+    dependsOn customClean  // Clean before compiling
+    source = sourceSets.main.java.srcDirs
+    classpath = sourceSets.main.compileClasspath
+    destinationDir = file("${buildDir}/custom-classes")
+    options.encoding = 'UTF-8'
+}
+
+apply plugin: 'org.hidetake.ssh'
+remotes {
+    server {
+        host = 'se.ifmo.ru'
+        user = 's291834'
+        password = 'RBTk>0502'
+        port = 2222  // Specify the custom port, default is 22
+// Use password for authentication
+    }
+}
+ssh.settings {
+    knownHosts = allowAnyHosts
+}
+
+// Custom task to create a JAR
+task customJar(type: Jar) {
+    dependsOn customCompile
+    from customCompile.destinationDir
+    archiveBaseName.set('my-custom-webapp')
+    archiveVersion.set(version)
+    destinationDirectory.set(file("${buildDir}/custom-libs"))
+
+    manifest {
+        attributes(
+                'Implementation-Version': version
+        )
+    }
+}
+task moveJarToServer {
+    dependsOn customJar
+    doLast {
+        ssh.run {
+            session(remotes.server) {
+                put from: customJar.archiveFile.get().asFile, into: '/home/studs/s291834/scp'
+            }
+        }
+    }
+}
+
+
+// Custom test task for JUnit
+//task customTest(type: Test) {
+//    useJUnitPlatform()
+//    testClassesDirs = sourceSets.test.output.classesDirs
+//    classpath = sourceSets.test.runtimeClasspath
+//}
+
+// Disable the default tasks to avoid using built-in Gradle functionality
+tasks.named('build').configure { enabled = false }
+tasks.named('clean').configure { enabled = false }
+tasks.named('jar').configure { enabled = false }
+tasks.named('test').configure { enabled = false }
+
+task customTest(type: Test) {
+    dependsOn customJar  // Ensure the build is completed before testing
+
+    useJUnitPlatform()
+
+    // Ensure that test classes are recognized from the right folder
+    testClassesDirs = sourceSets.test.output.classesDirs
+
+    // Classpath should include both main and test classpath
+    classpath = sourceSets.main.output + sourceSets.test.runtimeClasspath
+
+    // Enable test logging
+    testLogging {
+        events "passed", "skipped", "failed"
+        exceptionFormat "full"
+    }
+}
+task validateXml {
+    doLast {
+        def xmlFiles = fileTree(dir: '.', include: '**/*.xml',exclude: ['**/.idea/**', '**/build/**'])
+
+        xmlFiles.each { File xmlFile ->
+            try {
+                def factory = SchemaFactory.newInstance("http://www.w3.org/2001/XMLSchema")
+                def schema = factory.newSchema()
+                def validator = schema.newValidator()
+
+                // Perform validation
+                validator.validate(new StreamSource(xmlFile))
+                println "Valid XML: ${xmlFile}"
+            } catch (Exception e) {
+                println "Invalid XML: ${xmlFile}"
+                println "Error: ${e.message}"
+            }
+        }
+    }
+}
+
+
+// Utility method to compute hash
+def computeHash(File file, String algorithm) {
+    MessageDigest digest = MessageDigest.getInstance(algorithm)
+    byte[] fileBytes = Files.readAllBytes(Paths.get(file.absolutePath))
+    byte[] hashBytes = digest.digest(fileBytes)
+    return hashBytes.collect { String.format("%02x", it) }.join()
+}
+
+// Task to generate MD5 and SHA-1 hashes
+// Task to generate MD5 and SHA-1 hashes
+// Define properties at the beginning to avoid "property not found" issues.
+ext.md5Hashes = []
+ext.sha1Hashes = []
+
+task generateChecksums {
+    doLast {
+        def checksumDir = file("$buildDir/checksums")
+        if (!checksumDir.exists()) {
+            checksumDir.mkdirs()
+        }
+
+        def sourceFiles = fileTree('src/main/java').files
+        def md5HashesList = []
+        def sha1HashesList = []
+
+        sourceFiles.each { File file ->
+            def md5Hash = computeHash(file, "MD5")
+            def sha1Hash = computeHash(file, "SHA-1")
+
+            md5HashesList << "${file.name}: ${md5Hash}"
+            sha1HashesList << "${file.name}: ${sha1Hash}"
+
+            println "Generated MD5 for ${file.name}: ${md5Hash}"
+            println "Generated SHA-1 for ${file.name}: ${sha1Hash}"
+        }
+
+        // Store the calculated hashes in the project properties
+        project.ext.md5Hashes = md5HashesList
+        project.ext.sha1Hashes = sha1HashesList
+
+        // Print hashes for debugging
+        println "MD5 Hashes: ${project.ext.md5Hashes}"
+        println "SHA-1 Hashes: ${project.ext.sha1Hashes}"
+    }
+}
+
+// Task to generate Javadoc and include it in the JAR file
+task generateJavadoc(type: Javadoc) {
+    dependsOn customCompile
+    source = sourceSets.main.allJava
+    classpath = sourceSets.main.compileClasspath
+    destinationDir = file("${buildDir}/docs/javadoc")
+    options.encoding = 'UTF-8'
+}
+// Custom doc task to add checksums to MANIFEST.MF and include Javadoc in the JAR
+task customDoc(type: Jar) {
+    dependsOn customJar, generateJavadoc, generateChecksums
+
+    from generateJavadoc.destinationDir
+    archiveBaseName.set('my-custom-webapp-docs')
+    archiveVersion.set(version)
+    destinationDirectory.set(file("${buildDir}/custom-libs"))
+
+    // Delay accessing project.ext properties until the task is executed
+    doFirst {
+        if (!project.hasProperty('md5Hashes') || !project.hasProperty('sha1Hashes') || project.md5Hashes.isEmpty() || project.sha1Hashes.isEmpty()) {
+            throw new GradleException("Checksums are missing or not generated correctly!")
+        }
+
+        // Print hashes for debugging
+        println "Using MD5 Hashes: ${project.md5Hashes}"
+        println "Using SHA-1 Hashes: ${project.sha1Hashes}"
+
+        manifest {
+            attributes(
+                    'Implementation-Version': version,
+                    'MD5': project.md5Hashes.join(", "),
+                    'SHA-1': project.sha1Hashes.join(", ")
+            )
+        }
+    }
+}
+
+tasks.customDoc.mustRunAfter generateChecksums

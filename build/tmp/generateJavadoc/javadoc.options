@@ -1,0 +1,11 @@
+-classpath '/Users/watankhatib/.gradle/caches/modules-2/files-2.1/org.projectlombok/lombok/1.18.24/13a394eed5c4f9efb2a6d956e2086f1d81e857d9/lombok-1.18.24.jar:/Users/watankhatib/.gradle/caches/modules-2/files-2.1/javax/javaee-web-api/8.0.1/876355210738c6f2ecaf75e84fe59b9957cdd496/javaee-web-api-8.0.1.jar:/Users/watankhatib/.gradle/caches/modules-2/files-2.1/com.jcraft/jsch/0.1.55/bbd40e5aa7aa3cfad5db34965456cee738a42a50/jsch-0.1.55.jar:/Users/watankhatib/.gradle/caches/modules-2/files-2.1/com.sun.faces/jsf-api/2.2.20/4ab616dec34f330d0c62e3b305a57b6233654ae9/jsf-api-2.2.20.jar:/Users/watankhatib/.gradle/caches/modules-2/files-2.1/com.sun.faces/jsf-impl/2.2.18/8db0a833596f7e20c0c39b82eadaa192fe8be1c/jsf-impl-2.2.18.jar:/Users/watankhatib/.gradle/caches/modules-2/files-2.1/org.primefaces/primefaces/8.0/adc5a157e056a04737d6b97073ba5ed550263ede/primefaces-8.0.jar:/Users/watankhatib/.gradle/caches/modules-2/files-2.1/javax.validation/validation-api/1.1.0.Final/8613ae82954779d518631e05daa73a6a954817d5/validation-api-1.1.0.Final.jar:/Users/watankhatib/.gradle/caches/modules-2/files-2.1/org.eclipse.persistence/eclipselink/3.0.0-M1/f2293bd80ed6c9c33e4fa020a7d62b91e7c2af10/eclipselink-3.0.0-M1.jar:/Users/watankhatib/.gradle/caches/modules-2/files-2.1/org.postgresql/postgresql/42.7.2/86ed42574cd68662b05d3b00432a34e9a34cb12c/postgresql-42.7.2.jar:/Users/watankhatib/.gradle/caches/modules-2/files-2.1/javax.xml.bind/jaxb-api/2.3.1/8531ad5ac454cc2deb9d4d32c40c4d7451939b5d/jaxb-api-2.3.1.jar:/Users/watankhatib/.gradle/caches/modules-2/files-2.1/commons-codec/commons-codec/1.15/49d94806b6e3dc933dacbd8acb0fdbab8ebd1e5d/commons-codec-1.15.jar:/Users/watankhatib/.gradle/caches/modules-2/files-2.1/javax.activation/javax.activation-api/1.2.0/85262acf3ca9816f9537ca47d5adeabaead7cb16/javax.activation-api-1.2.0.jar'
+-d '/Users/watankhatib/Desktop/2univirsity/webprog/lab3/WebLab3/build/docs/javadoc'
+-doctitle 'WebLab3 1.0 API'
+-encoding 'UTF-8'
+-notimestamp 
+-quiet 
+-windowtitle 'WebLab3 1.0 API'
+'/Users/watankhatib/Desktop/2univirsity/webprog/lab3/WebLab3/src/main/java/Point.java'
+'/Users/watankhatib/Desktop/2univirsity/webprog/lab3/WebLab3/src/main/java/PollView.java'
+'/Users/watankhatib/Desktop/2univirsity/webprog/lab3/WebLab3/src/main/java/ConnectToDB.java'
+'/Users/watankhatib/Desktop/2univirsity/webprog/lab3/WebLab3/src/main/java/PointDateBean.java'
